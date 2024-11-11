@@ -22,7 +22,7 @@
           {% if not member.is_manger %}
           <li><a href="javascript:void(0);" onclick="window.location.reload();">통장</a></li>
           <li><a href="/exchange">환율</a></li>
-          <li><a href="/">홈</a></li>
+          <li><a href="/change_money">환전</a></li>
           {% endif %}
         </ul>
       </nav>
@@ -31,10 +31,10 @@
     <div class="wrapper">
         {% if not member.is_manger %}
           <h1>
-              한국은행         
+              창융PAY         
           </h1>
           <h2>
-              {{user.username}}님 통장입니다
+              {{user.username}}님 통장잔고
           </h2>
           <table>
               <tr>
@@ -69,7 +69,7 @@
           <div class="button-container">
             <button onclick="location.href='/change_calculate';">계산기</button>
             <button onclick="location.href='/change_money';">환전</button>
-            <button onclick="location.href='/change_money';">입/출금</button>
+            <button onclick="location.href='/account';">입/출금</button>
             
           </div>
         {% endif %}

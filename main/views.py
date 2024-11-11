@@ -4,6 +4,49 @@ from django.shortcuts import render, redirect
 from django.contrib import auth
 from django.middleware.csrf import CsrfViewMiddleware
 
+def account(request):
+    context = {}
+    if request.method == "POST":
+        print(request.POST)
+        try:
+            username1 = request.POST.get("username")
+            print(username1)
+            user = User.objects.get(username=username1)
+            pk = user.id
+            member = Person.objects.get(person_id = pk)
+            bankbook = BankBook.objects.get(user_id = member.pk)
+            user_bankbook = bankbook.balance_won
+            print(type(user_bankbook))
+            
+            amount = request.POST.get("Amount")
+            print(amount)
+            context["amount"] = int(amount)
+
+            if 'input' in request.POST:
+                update = user_bankbook + int(amount)
+                context["update"] = update
+                context["buy_possible"] = True
+                print(f"입금:{amount} >> 잔액:{update}")
+                BankBook.objects.filter(user_id = member.pk).update(balance_won = update)
+                print(context)
+            
+            elif 'output' in request.POST:
+                update = int(user_bankbook - int(amount))
+
+                if update >= 0:
+                    context["update"] = update
+                    context["cell_possible"] = True
+                    print(f"출금:{amount} >> 잔액:{update}")
+                    BankBook.objects.filter(user_id = member.pk).update(balance_won = update)
+                else:
+                    context["cell_impossible"] = False
+                    print("출금실패")
+                    return render(request, 'account.html',context)
+        except:
+            return render(request, 'account.html')
+    return render(request, 'account.html',context)
+
+
 def change_calculate(request):
     #유저 접속 거부
     req_mem  = Person.objects.get(person_id = request.user.pk)
@@ -86,7 +129,6 @@ def change_calculate(request):
     return render(request, 'change_calculate.html',context)
 
 def change_money(request):
-    print(request.body)
     show_reciept = False
     is_cell_possible = False
     is_buy_possible = False
@@ -99,21 +141,37 @@ def change_money(request):
         "is_success" : is_success
     }
 
+    req_mem  = Person.objects.get(person_id = request.user.pk)
+    context["is_manger"] = req_mem.is_manger
+    if not req_mem.is_manger:
+        bankbooktmp = BankBook.objects.get(user_id = req_mem.pk)
+        user_won = bankbooktmp.balance_won
+        user_dol = bankbooktmp.balance_dol
+        user_php = bankbooktmp.balance_pes
+        user_yen = bankbooktmp.balance_yen
+        context["user_won"] = user_won
+        context["user_dol"] = user_dol
+        context["user_php"] = user_php
+        context["user_yen"] = user_yen
+
     if request.method == "POST":
         try:
-            username1 = request.POST.get("username")
-            print(username1)
+            #manger change
+            if req_mem.is_manger:
+                username1 = request.POST.get("username")
+                print(username1)
+                user = User.objects.get(username=username1)
+                pk = user.id
+                member = Person.objects.get(person_id = pk)
+            #user direct
+            else:
+                member = req_mem
             
             input = request.POST.get("input")
-            
             currency = request.POST.get("currency")
-            
-            user = User.objects.get(username=username1)
-            pk = user.id
-            member = Person.objects.get(person_id = pk)
             exchange_info = Exchange.objects.all().values()[0]
 
-            manager = str(request.user)
+            percent = 0.1
 
             if currency == "USD":
                 rate = exchange_info["dollar2won"]
@@ -122,134 +180,104 @@ def change_money(request):
             else:
                 rate = exchange_info["yenn2won"]
             
-            if not member.is_manger:
-                print("is not manager")
-                bankbook = BankBook.objects.get(user_id = member.pk)
-                charge_free = False
+            bankbook = BankBook.objects.get(user_id = member.pk)
 
-                if currency == "USD":
-                    user_bankbook = bankbook.balance_dol
-                    if manager == "usd":
-                        charge_free = True
-                        
-                elif currency == "PHP":
-                    user_bankbook = bankbook.balance_pes
-                    if manager == "php":
-                        charge_free = True
-                else:
-                    user_bankbook = bankbook.balance_yen
-                    if manager == "yen":
-                        charge_free = True
-                txt = input + " " +currency
+            if currency == "USD":
+                user_bankbook = bankbook.balance_dol
+                    
+            elif currency == "PHP":
+                user_bankbook = bankbook.balance_pes
+            else:
+                user_bankbook = bankbook.balance_yen
+            txt = input + " " +currency
 
-                print(f"charge free : {charge_free}")
+            #외화 -> 원화
+            if 'cell' in request.POST:
+                input = int(input)
+                if user_bankbook >= input:
+                    is_cell_possible = True
+                    rate = rate*(1-percent)
+                    get_won = int(input * rate)
 
-                if 'cell' in request.POST:
-                    input = int(input)
-                    if user_bankbook >= input:
-                        is_cell_possible = True
-                        print(f"is cell possibile : {is_cell_possible}")
-                        #나중에 수수료 면제
+                    print(f"get won = {get_won}")
+                    
+                    context["is_cell_possible"] = is_cell_possible
+                    context["get_won"] = get_won
+                    context["input"] = str(input)+currency
 
-                        #받는 원화 가격
-                        get_won = input * rate
+                    try:
+                        origin = user_bankbook
+                        origin_won = bankbook.balance_won
 
-                        #환전 수수료
-                        if charge_free == False:
-                             charge = get_won * 0.1
-                             charge = int(charge)
+                        update = origin - input
+                        update_won = origin_won + get_won
+
+                        if currency == "USD":
+                            BankBook.objects.filter(user_id = member.pk).update(balance_dol = update)
+                                
+                        elif currency == "PHP":
+                            BankBook.objects.filter(user_id = member.pk).update(balance_pes = update)
+
                         else:
-                            charge = 0
-                        get_won = int(get_won - charge)
-                        print(f"charge : {charge}")
-                        print(f"get won = {get_won}")
+                            BankBook.objects.filter(user_id = member.pk).update(balance_yen = update)
+
+                        BankBook.objects.filter(user_id = member.pk).update(balance_won = update_won)
+                        is_success = True
+                        context["is_success"] = is_success
                         
-                        context["is_cell_possible"] = is_cell_possible
-                        context["get_won"] = get_won
-                        context["charge"] = charge
-                        context["input"] = txt
+                    except:
+                        print("db fail")
+                        return redirect('/change_money')
+            #원화 -> 외화
+            else:
+                #환전 최대 가능량
+                rate = rate*(1+percent)
+                show_limit = True
+                context["show_limit"] = show_limit
 
-                        try:
-                            origin = user_bankbook
-                            origin_won = bankbook.balance_won
+                limit = int(user_won / rate)-1
+                context["limit"] = str(limit) +currency
+                print(user_won)
+                print(limit)
 
-                            update = origin - input
-                            update_won = origin_won + get_won
+                input = int(input)
+                if limit >= input:
+                    is_buy_possible = True
+                    context["is_buy_possible"] = is_buy_possible
 
-                            if currency == "USD":
-                                BankBook.objects.filter(user_id = member.pk).update(balance_dol = update)
-                                    
-                            elif currency == "PHP":
-                                BankBook.objects.filter(user_id = member.pk).update(balance_pes = update)
-
-                            else:
-                                BankBook.objects.filter(user_id = member.pk).update(balance_yen = update)
-
-                            BankBook.objects.filter(user_id = member.pk).update(balance_won = update_won)
-                            is_success = True
-                            context["is_success"] = is_success
-                            
-                        except:
-                            print("db fail")
-                            return redirect('/change_money')
-
-                            
+                    use_money = int(input * rate)
+                    
+                    context["currency"] = currency
+                    context["use_money"] = use_money
+                    context["input"] = str(input)+currency
 
 
-                else:
-                    user_bankbook = bankbook.balance_won
+                    try:
+                        origin_won = bankbook.balance_won
+                        update_won = origin_won - use_money
 
-                    #환전 최대 가능량
-                    show_limit = True
-                    limit = int(user_bankbook / (rate * 1.1))
+                        if currency == "USD":
+                            origin = BankBook.objects.get(user_id = member.pk).balance_dol
+                            update = origin + input
+                            BankBook.objects.filter(user_id = member.pk).update(balance_dol = update)
+                                
+                        elif currency == "PHP":
+                            origin = BankBook.objects.get(user_id = member.pk).balance_pes
+                            update = origin + input
+                            BankBook.objects.filter(user_id = member.pk).update(balance_pes = update)
 
-                    context["show_limit"] = show_limit
-                    context["limit"] = limit
-                    input = int(input)
-                    if limit >= input:
-                        is_buy_possible = True
-
-                        use_money = input * rate
-                        
-                        if charge_free == False:
-                            charge = int(use_money * 0.1)
                         else:
-                            charge = 0
-                        use_money = int(use_money + charge)
+                            origin = BankBook.objects.get(user_id = member.pk).balance_yen
+                            update = origin + input
+                            BankBook.objects.filter(user_id = member.pk).update(balance_yen = update)
 
-                        context["is_buy_possible"] = is_buy_possible
-                        context["currency"] = currency
-                        context["charge"] = charge
-                        context["use_money"] = use_money
-                        context["input"] = txt
-
-
-                        try:
-                            origin_won = bankbook.balance_won
-                            update_won = origin_won - use_money
-
-                            if currency == "USD":
-                                origin = BankBook.objects.get(user_id = member.pk).balance_dol
-                                update = origin + input
-                                BankBook.objects.filter(user_id = member.pk).update(balance_dol = update)
-                                    
-                            elif currency == "PHP":
-                                origin = BankBook.objects.get(user_id = member.pk).balance_pes
-                                update = origin + input
-                                BankBook.objects.filter(user_id = member.pk).update(balance_pes = update)
-
-                            else:
-                                origin = BankBook.objects.get(user_id = member.pk).balance_yen
-                                update = origin + input
-                                BankBook.objects.filter(user_id = member.pk).update(balance_yen = update)
-
-                            BankBook.objects.filter(user_id = member.pk).update(balance_won = update_won)
-                            is_success = True
-                            context["is_success"] = is_success
-                            
-                        except:
-                            print("db fail")
-                            return redirect('/change_money')
+                        BankBook.objects.filter(user_id = member.pk).update(balance_won = update_won)
+                        is_success = True
+                        context["is_success"] = is_success
+                        
+                    except:
+                        print("db fail")
+                        return redirect('/change_money')
 
         except:
             pass
@@ -301,6 +329,7 @@ def exchange_rate(request):
 
 
 def user_main_page(request, pk):
+    #Cut Another Link
     if request.user.pk != pk:
         return redirect(f'/{request.user.pk}/')
     

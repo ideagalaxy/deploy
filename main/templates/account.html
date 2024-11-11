@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <html lang="en">
 
 <head>
@@ -18,17 +19,16 @@
     </div>
       <nav>
         <ul>
-            
-          <li><a href="javascript:void(0);" onclick="window.location.reload();">계산기</a></li>
-          <li><a href="/change_money">환전</a></li>
-          <li><a href="/account">입출금</a></li>
+            <li><a href="/change_money">환전</a></li>
+            <li><a href="javascript:void(0);" onclick="window.location.reload();">입출금</a></li>
+          
         </ul>
       </nav>
 </header>
 <body>
     <div class="wrapper">
           <h1>
-              환율 계산기    
+              입출금   
           </h1>
           <form method = "post" >
             {% csrf_token %}
@@ -37,48 +37,36 @@
             <i class='bx bxs-user'></i>
             </div>
             <div class="drop-container"> 
-                <select class="dropmenu" name="currency" id="currency">
-                    <option value="USD" selected>USD</option>
-                    <option value="KRW">PHP</option>
-                    <option value="JPY">JPY</option>
-                </select>
+                
                 <div class="input-box">
-                    <input type="number" name="input" placeholder="input">
+                    <input type="number" name="Amount" placeholder="Amount">
                     <i class='bx bxs-user'></i>
                 </div>
                 
             </div>
             {% if cell_possible %}
                 <h3>계산서</h3>
-                <p>{{input}} -> {{change}} 원</p>
-                <p>수수료 : {{charge}} 원</p>
-                <p>수령액 : {{real_change}} 원</p>
+                <p>{{amount|intcomma}}원 출금</p>
+                <p>잔액 : {{update|intcomma}}원</p>
             {% else %}
             {% endif %}
 
-            {% if not_cell_possible %}
-                <h3>환전 불가</h3> 
-                <p>{{input}}</p>
+            {% if cell_impossible %}
+                <p>출금 가능액 OVER</p>
             {% else %}
+                
             {% endif %}
 
-            {% if show_limit %}
-                <h2>환전 가능 금액</h2>
-                <p>최대 {{limit}} {{currency}} 환전 가능</p><br>
-            {% else %}
-            {% endif %}
-            {% if is_buy_possible %}
+            {% if buy_possible %}
                 <h3>계산서</h3>
-                <p>{{input}} 구매: {{use_money}} 원 (수수료 포함)</p>
-                <p>환전수수료  : {{charge}} 원</p>
+                <p>{{amount|intcomma}}원 입금</p>
+                <p>잔액 : {{update|intcomma}}원</p>
             {% else %}
             {% endif %}
             
-            
-
             <div class="button-container">
-                    <button type="submit" name="buy" class="btn">BUY 계산</button>
-                    <button type="submit" name="cell" class="btn">CELL 계산</button>
+                    <button type="submit" name="input" class="btn">입금</button>
+                    <button type="submit" name="output" class="btn">출금</button>
                 
             </div>
             
@@ -89,3 +77,22 @@
     
 </body>
 </html>
+
+<script>
+    window.onload = function() {
+    const referrer = document.referrer;
+
+    let refreshCount = parseInt(sessionStorage.getItem("refreshCount")) || 0;
+    
+    if (referrer && !referrer.includes(window.location.hostname)) {
+        sessionStorage.setItem("refreshCount", 0);
+    }
+    if (refreshCount >= 2) {
+        window.location.href = "/{{user.pk}}";
+        sessionStorage.setItem("refreshCount", 0);
+    } else {
+        sessionStorage.setItem("refreshCount", refreshCount + 1);
+    }
+    };
+
+</script>

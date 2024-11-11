@@ -11,10 +11,10 @@ urlpatterns = [
     path('<int:pk>/',views.user_main_page,name="user_main_page"),
     path('exchange', views.exchange_rate, name='exchange'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('exchange/detail', views.exchange_rate, name='exchange'),
 
     
     path('change_money',views.change_money,name="change_money"),
     path('change_calculate',views.change_calculate,name="change_calculate"),
+    path('account',views.account,name="account"),
 
 ]

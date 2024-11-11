@@ -14,20 +14,20 @@
 
 <header>
     <div class="header_logo">
-        <img src="{% static 'css/ccc_logo.jpg' %}" alt="logo" /><span>창융PAY</span>
+        <img src="{% static 'css/ccc_logo.jpg' %}" alt="logo" />
     </div>
       <nav>
         <ul>
           <li><a href="/{{user.pk}}/">통장</a></li>
           <li><a href="javascript:void(0);" onclick="window.location.reload();">환율</a></li>
-          <li><a href="/">홈</a></li>
+          <li><a href="/change_money">환전</a></li>
         </ul>
       </nav>
 </header>
 <body>
     <div class="wrapper">
         <h1>
-            실시간 환율 정보   
+            실시간 환율  
         </h1>
         <table>
             <tr>
