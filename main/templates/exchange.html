@@ -1,0 +1,53 @@
+{% load static %}
+<html lang="en">
+
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 환율 정보</title>
+    <link rel="stylesheet" href="{% static 'css/style_exchange.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+
+</head>
+
+<header>
+    <div class="header_logo">
+        <img src="{% static 'css/ccc_logo.jpg' %}" alt="logo" /><span>창융PAY</span>
+    </div>
+      <nav>
+        <ul>
+          <li><a href="/{{user.pk}}/">통장</a></li>
+          <li><a href="javascript:void(0);" onclick="window.location.reload();">환율</a></li>
+          <li><a href="/">홈</a></li>
+        </ul>
+      </nav>
+</header>
+<body>
+    <div class="wrapper">
+        <h1>
+            실시간 환율 정보   
+        </h1>
+        <table>
+            <tr>
+              <td>1 달러</td>
+              <td>{{info.dollar2won}} 원</td>
+            </tr>
+            <tr>
+              <td>1 엔화</td>
+              <td>{{info.yenn2won}} 원</td>
+            </tr>
+            <tr>
+              <td>1 페소</td>
+              <td>{{info.pesso2won}} 원</td>
+            </tr>
+          </table>
+          <div class="button-container">
+            <button onclick="location.reload();">조회하기</button>
+          </div>
+          
+    </div>
+    
+</body>
+</html>

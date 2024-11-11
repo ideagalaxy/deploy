@@ -1,0 +1,31 @@
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>창융인의밤</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+</head>
+<body>
+    <div class="wrapper">
+        
+        <form method = "post">
+            {% csrf_token %}
+            <h1>
+                <div class="logo-container">
+                    <img src="{% static 'css/ccc_logo.jpg' %}" alt="Logo" class="logo">
+                    CCC BankPay
+                </div>
+                                
+            </h1>
+            
+            <button type="submit" name="action" value="log_in" class="btn">Log in</button>
+            
+        </form>
+    </div>
+    
+</body>
+</html>
