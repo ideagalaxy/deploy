@@ -60,30 +60,26 @@
             {% if is_cell_possible %}
                 <h3>계산서</h3>
                 <p>{{input|intcomma}} 판매 완료 : {{get_won|intcomma}} 원 입금</p>
-                <div class="button-container">
-                    <button class="btn" onclick="location.href='/change_money';">추가환전</button>
-                </div>
             {% else %}
             {% endif %}
 
             {% if is_buy_possible %}
                 <h3>계산서</h3>
                 <p>{{input|intcomma}} 구매 완료 : {{use_money|intcomma}} 원 출금</p>
-                <div class="button-container">
-                    <button class="btn" onclick="location.href='/change_money';">추가환전</button>
-                </div>
                 
             {% else %}
             {% endif %}
+
+            <div class="button-container">
+                <button type="submit" name="buy" class="btn">구매</button>
+                <button type="submit" name="cell" class="btn">판매</button>
+            </div>
 
             {% if is_cell_possible %}
             {% else %}
                 {% if is_buy_possible %}
                 {% else %}
-                    <div class="button-container">
-                        <button type="submit" name="buy" class="btn">구매</button>
-                        <button type="submit" name="cell" class="btn">판매</button>
-                    </div>
+                    
                 {% endif %}
             {% endif %}
 
@@ -120,20 +116,5 @@
 
     }
 
-    window.onload = function() {
-    const referrer = document.referrer;
-
-    let refreshCount = parseInt(sessionStorage.getItem("refreshCount")) || 0;
-    
-    if (referrer && !referrer.includes(window.location.hostname)) {
-        sessionStorage.setItem("refreshCount", 0);
-    }
-    if (refreshCount >= 2) {
-        window.location.href = "/exchange";
-        sessionStorage.setItem("refreshCount", 0);
-    } else {
-        sessionStorage.setItem("refreshCount", refreshCount + 1);
-    }
-    };
 
 </script>
