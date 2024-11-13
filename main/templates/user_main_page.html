@@ -23,6 +23,7 @@
           <li><a href="javascript:void(0);" onclick="window.location.reload();">통장</a></li>
           <li><a href="/exchange">환율</a></li>
           <li><a href="/change_money">환전</a></li>
+          <li><a href="/enter">참가</a></li>
           {% endif %}
         </ul>
       </nav>
@@ -67,7 +68,7 @@
             {{user.username}}님은 관리자입니다.       
           </h1>
           <div class="button-container">
-            <button onclick="location.href='/change_calculate';">계산기</button>
+            <button onclick="location.href='/checkwinner';">순위확인</button>
             <button onclick="location.href='/change_money';">환전</button>
             <button onclick="location.href='/account';">입/출금</button>
             

@@ -1,0 +1,95 @@
+{% load static %}
+{% load humanize %}
+<html lang="en">
+
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게임참가</title>
+    <link rel="stylesheet" href="{% static 'css/style_change_money.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+
+</head>
+
+<header>
+    <div class="header_logo">
+        <img src="{% static 'css/ccc_logo.jpg' %}" alt="logo" />
+    </div>
+      <nav>
+        <ul>
+            
+            {% if is_manger %}
+            {% else %}
+            <li><a href="/{{user.pk}}/">통장</a></li>
+            <li><a href="/exchange">환율</a></li>
+            <li><a href="/change_money">환전</a></li>
+            <li><a href="javascript:void(0);" onclick="window.location.reload();">환전</a></li>
+            {% endif %}
+            
+            
+          
+        </ul>
+      </nav>
+</header>
+<body>
+    <div class="wrapper">
+          <h1>
+              게임참가         
+          </h1>
+          <br>
+          <form method = "post" >
+            {% csrf_token %}
+            
+            
+
+            <div class="button-container">
+                <button type="submit" name="buy" class="btn">물건 맞추기</button>
+                <button type="submit" name="buy" class="btn">올리면 2배!</button>
+            </div>
+            
+            <div class="button-container">
+                <button type="submit" name="buy" class="btn">탁구공 박자</button>
+                <button type="submit" name="buy" class="btn">할리갈리</button>
+            </div>
+            
+            <div class="button-container">
+                <button type="submit" name="buy" class="btn">해적룰렛</button>
+                <button type="submit" name="buy" class="btn">멕시칸 스탠드오프</button>
+            </div>
+
+            <div class="button-container">
+                <button type="submit" name="buy" class="btn">딜러의 단어는?</button>
+            </div>
+
+            
+        </form>
+            
+          
+    </div>
+    
+</body>
+</html>
+
+
+<script>
+    function updatePlaceholder() {
+        const selectedCurrency = document.getElementById("currency").value;
+        
+        const inputBox = document.getElementById("inputBox");
+        
+        if (selectedCurrency === "USD") {
+            inputBox.placeholder = "{{user_dol}}$ 판매가능";
+        } 
+        if (selectedCurrency === "JPY") {
+            inputBox.placeholder = "{{user_yen}}¥ 판매가능";
+        } 
+        if (selectedCurrency === "PHP") {
+            inputBox.placeholder = "{{user_php}}₱ 판매가능";
+        } 
+
+    }
+
+
+</script>

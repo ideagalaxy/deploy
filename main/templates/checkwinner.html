@@ -1,0 +1,101 @@
+{% load static %}
+{% load humanize %}
+<html lang="en">
+
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{user.username}}님의 잔고</title>
+    <link rel="stylesheet" href="{% static 'css/style_user_main.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+
+</head>
+
+<header>
+    <div class="header_logo">
+        <img src="{% static 'css/ccc_logo.jpg' %}" alt="logo" />
+    </div>
+      <nav>
+        <ul>
+          {% if not member.is_manger %}
+          <li><a href="javascript:void(0);" onclick="window.location.reload();">순위</a></li>
+          <li><a href="/change_money">환전</a></li>
+          <li><a href="/account">입출금</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+</header>
+<body>
+    <div class="wrapper">
+          <h1>
+              순위확인         
+          </h1>
+          <table>
+              <tr>
+                <th>통화</th>
+                <th>원화</th>
+              </tr>
+              <tr>
+                <td>1등 {{won1name}}</td>
+                <td>{{won1|intcomma}} ₩</td>
+              </tr>
+              <tr>
+                <td>2등 {{won2name}}</td>
+                <td>{{won2|intcomma}} ₩</td>
+              </tr>
+            </table>
+
+            <table>
+              <tr>
+                <th>통화</th>
+                <th>달러</th>
+              </tr>
+              <tr>
+                <td>1등 {{dol1name}}</td>
+                <td>{{dol1|intcomma}} $</td>
+              </tr>
+              <tr>
+                <td>2등 {{dol2name}}</td>
+                <td>{{dol2|intcomma}} $</td>
+              </tr>
+            </table>
+
+            <table>
+              <tr>
+                <th>통화</th>
+                <th>페소</th>
+              </tr>
+              <tr>
+                <td>1등 {{pes1name}}</td>
+                <td>{{pes1|intcomma}} $</td>
+              </tr>
+              <tr>
+                <td>2등 {{pes2name}}</td>
+                <td>{{pes2|intcomma}} $</td>
+              </tr>
+            </table>
+
+            <table>
+              <tr>
+                <th>통화</th>
+                <th>엔화</th>
+              </tr>
+              <tr>
+                <td>1등 {{yen1name}}</td>
+                <td>{{yen1|intcomma}} $</td>
+              </tr>
+              <tr>
+                <td>2등 {{yen2name}}</td>
+                <td>{{yen2|intcomma}} $</td>
+              </tr>
+            </table>
+            <div class="button-container">
+              <button onclick="location.reload();">조회하기</button>
+            </div>
+        
+    </div>
+    
+</body>
+</html>

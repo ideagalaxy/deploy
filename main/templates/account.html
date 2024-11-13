@@ -19,8 +19,9 @@
     </div>
       <nav>
         <ul>
+            <li><a href="/checkwinner">순위</a></li>
             <li><a href="/change_money">환전</a></li>
-            <li><a href="javascript:void(0);" onclick="window.location.reload();">입출금</a></li>
+            <li><a href="javascript:void(0);">입출금</a></li>
           
         </ul>
       </nav>
@@ -78,21 +79,3 @@
 </body>
 </html>
 
-<script>
-    window.onload = function() {
-    const referrer = document.referrer;
-
-    let refreshCount = parseInt(sessionStorage.getItem("refreshCount")) || 0;
-    
-    if (referrer && !referrer.includes(window.location.hostname)) {
-        sessionStorage.setItem("refreshCount", 0);
-    }
-    if (refreshCount >= 2) {
-        window.location.href = "/{{user.pk}}";
-        sessionStorage.setItem("refreshCount", 0);
-    } else {
-        sessionStorage.setItem("refreshCount", refreshCount + 1);
-    }
-    };
-
-</script>

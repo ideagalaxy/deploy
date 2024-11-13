@@ -4,6 +4,11 @@ from django.shortcuts import render, redirect
 from django.contrib import auth
 from django.middleware.csrf import CsrfViewMiddleware
 
+
+
+def enter(request):
+    return render(request, 'enter.html')
+
 def account(request):
     context = {}
     if request.method == "POST":
@@ -285,6 +290,57 @@ def change_money(request):
 
     return render(request, 'change_money.html',context)
 
+def checkwinner(request):
+    #유저 접속 거부
+    req_mem  = Person.objects.get(person_id = request.user.pk)
+    if req_mem.is_manger == False:
+        return redirect(f'/{request.user.pk}/')
+    
+    top_won = BankBook.objects.order_by('-balance_won')[:5]
+    top_dol = BankBook.objects.order_by('-balance_dol')[:5]
+    top_pes = BankBook.objects.order_by('-balance_pes')[:5]
+    top_yen = BankBook.objects.order_by('-balance_yen')[:5]
+    context = {}
+    i = 1
+    for won in top_won:
+        if won.user.is_player:
+            context["won"+str(i)+"name"] = won.user.person
+            context["won"+str(i)] = won.balance_won
+            i += 1
+        if i == 3:
+            break
+    
+    i = 1
+    for dol in top_dol:
+        if dol.user.is_player:
+            context["dol"+str(i)+"name"] = dol.user.person
+            context["dol"+str(i)] = dol.balance_dol
+            i += 1
+        if i == 3:
+            break
+
+    i = 1
+    for pes in top_pes:
+        if pes.user.is_player:
+            context["pes"+str(i)+"name"] = pes.user.person
+            context["pes"+str(i)] = pes.balance_pes
+            i += 1
+        if i == 3:
+            break
+    
+    i = 1
+    for yen in top_yen:
+        if yen.user.is_player:
+            context["yen"+str(i)+"name"] = yen.user.person
+            context["yen"+str(i)] = yen.balance_yen
+            i += 1
+        if i == 3:
+            break
+    
+
+    return render(request, 'checkwinner.html',context)
+
+
 
 def first_page(request):
     print("this is first_page")
@@ -308,8 +364,7 @@ def login_page(request):
         print(pwd)
         user = auth.authenticate(request, username = userid, password = pwd)
         print(user)
-        user = User.objects.get(username = userid)
-        print(user.is_active)
+        #user = User.objects.get(username = userid)
 
         if user is not None:
             auth.login(request, user)
