@@ -29,7 +29,7 @@ def enter(request):
         if 'nomal' in request.POST:
             update = bankbooktmp - FEE
             context["is_enter"] = True
-            #BankBook.objects.filter(user_id = req_mem.pk).update(balance_won = update)
+            BankBook.objects.filter(user_id = req_mem.pk).update(balance_won = update)
             txt = f"{FEE}원 결제성공(잔액: {update}원)"
             context["txt1"] = txt
             return render(request, 'receipt.html', context)
@@ -71,7 +71,7 @@ def casino(request):
                 if input <= bankbooktmp:
                     update = bankbooktmp - input
                     context["is_enter"] = True
-                    #BankBook.objects.filter(user_id = req_mem.pk).update(balance_won = update)
+                    BankBook.objects.filter(user_id = req_mem.pk).update(balance_won = update)
                     txt = f"{input}원 결제성공(잔액: {update}원)"
                     context["txt1"] = txt
                     return render(request, 'receipt.html', context)
