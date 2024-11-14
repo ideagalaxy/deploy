@@ -6,7 +6,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>환율 계산기</title>
+    <title>환전 페이지</title>
     <link rel="stylesheet" href="{% static 'css/style_change_money.css' %}">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     
@@ -19,9 +19,16 @@
     </div>
       <nav>
         <ul>
-            <li><a href="/checkwinner">순위</a></li>
+            
+            {% if is_manger %}
+            {% else %}
+            <li><a href="/{{user.pk}}/">통장</a></li>
+            <li><a href="/exchange">환율</a></li>
             <li><a href="/change_money">환전</a></li>
-            <li><a href="javascript:void(0);">입출금</a></li>
+            <li><a href="/enter">참가</a></li>
+            {% endif %}
+            
+            
           
         </ul>
       </nav>
@@ -29,24 +36,23 @@
 <body>
     <div class="wrapper">
           <h1>
-              입출금   
+              코인 결제        
           </h1>
+          <p>코인 1개 가치 = {{price}}원</p>
           <form method = "post" >
             {% csrf_token %}
-            <div class="input-box">
-            <input type="text" name="username" placeholder="studentID">
-            <i class='bx bxs-user'></i>
-            </div>
+            
             <div class="drop-container"> 
                 <div class="input-box">
-                    <input type="number" name="Amount" placeholder="Amount">
+                    <input type="number" name="input" id="inputBox" placeholder="결제금액 입력">
                     <i class='bx bxs-user'></i>
                 </div>
+                
             </div>
-            
+           
+
             <div class="button-container">
-                    <button type="submit" name="input" class="btn">입금</button>
-                    <button type="submit" name="output" class="btn">출금</button>
+                <button type="submit" name="buy" class="btn">결제</button>
             </div>
             
         </form>
@@ -56,4 +62,3 @@
     
 </body>
 </html>
-

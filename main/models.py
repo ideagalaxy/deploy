@@ -27,9 +27,11 @@ class Exchange(models.Model):
     dollar2won = models.IntegerField(default = 0)
     yenn2won = models.IntegerField(default = 0)
     pesso2won = models.IntegerField(default = 0)
+    change_rate_percent = models.IntegerField(default = 0)
+    enter_fee = models.IntegerField(default = 0)
 
     def __str__(self) -> str:
-        return f"{self.dollar2won}won/dol, {self.yenn2won}won/yen, {self.pesso2won}won/yen"
+        return "Information"
     
 class Log(models.Model):
     username = models.CharField(max_length= 100)

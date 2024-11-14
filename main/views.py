@@ -3,33 +3,98 @@ from .models import *
 from django.shortcuts import render, redirect
 from django.contrib import auth
 from django.middleware.csrf import CsrfViewMiddleware
+from datetime import datetime
 
-def receipt(request):
-
+def receipt(request,inputdata):
     return render(request, 'receipt.html')
 
+exchange_info = Exchange.objects.all().values()[0]
+FEE = exchange_info["enter_fee"]
 
 def enter(request):
-    FEE = 50000
-    print(request.POST)
-
     req_mem  = Person.objects.get(person_id = request.user.pk)
     bankbooktmp = BankBook.objects.get(user_id = req_mem.pk).balance_won
-    if request.method == "POST":
-        if 'nomal' in request.POST:
-            print(bankbooktmp)
-            #BankBook.objects.filter(user_id = member.pk).update(balance_won = update)
 
+    if request.method == "POST":
+        context = {}
+        current_time = datetime.now().strftime("%m월 %d일  %H:%M:%S")
+        context["current_time"] = current_time
+
+        #잔고가 참가비보다 적을 때 참가 못함
+        if bankbooktmp < FEE:
+            txt = "결제실패(잔고부족)"
+            context["txt1"] = txt
+            return render(request, 'receipt.html', context)
+            
+        if 'nomal' in request.POST:
+            update = bankbooktmp - FEE
+            context["is_enter"] = True
+            #BankBook.objects.filter(user_id = req_mem.pk).update(balance_won = update)
+            txt = f"{FEE}원 결제성공(잔액: {update}원)"
+            context["txt1"] = txt
+            return render(request, 'receipt.html', context)
         
         if 'casino' in request.POST:
-            print(bankbooktmp)
+            return redirect(f'casino')
 
     return render(request, 'enter.html')
 
+def casino(request):
+    context = {}
+    coin_price = 50000
+    context["price"] = coin_price
+
+    req_mem  = Person.objects.get(person_id = request.user.pk)
+    bankbooktmp = BankBook.objects.get(user_id = req_mem.pk).balance_won
+
+    if request.method == "POST":
+        if 'buy' in request.POST:
+            input_str = request.POST.get("input")
+            try:
+                input = int(input_str)
+                if input < 0:
+                    current_time = datetime.now().strftime("%m월 %d일  %H:%M:%S")
+                    context["current_time"] = current_time
+                    txt = "0보다 큰 값을 입력하십시오."
+                    context["txt1"] = txt
+                    txt2 = "처음부터 다시 참가과정을 진행하십시오."
+                    context["txt2"] = txt2
+                    return render(request, 'receipt.html', context)
+
+            except (TypeError, ValueError):
+                input = None  # 또는 기본값 설정
+
+            if input != None:
+                current_time = datetime.now().strftime("%m월 %d일  %H:%M:%S")
+                context["current_time"] = current_time
+
+                if input <= bankbooktmp:
+                    update = bankbooktmp - input
+                    context["is_enter"] = True
+                    #BankBook.objects.filter(user_id = req_mem.pk).update(balance_won = update)
+                    txt = f"{input}원 결제성공(잔액: {update}원)"
+                    context["txt1"] = txt
+                    return render(request, 'receipt.html', context)
+                
+                else:
+                    txt = "결제실패(잔고부족)"
+                    context["txt1"] = txt
+                    return render(request, 'receipt.html', context)
+
+    return render(request, 'casino.html',context)
+
+#입출금 : 매니저 전용
 def account(request):
+    #유저 접속 거부
+    req_mem  = Person.objects.get(person_id = request.user.pk)
+    if req_mem.is_manger == False:
+        return redirect(f'/{request.user.pk}/')
+
     context = {}
     if request.method == "POST":
         print(request.POST)
+        current_time = datetime.now().strftime("%m월 %d일  %H:%M:%S")
+        context["current_time"] = current_time
         try:
             username1 = request.POST.get("username")
             print(username1)
@@ -41,31 +106,37 @@ def account(request):
             print(type(user_bankbook))
             
             amount = request.POST.get("Amount")
-            print(amount)
-            context["amount"] = int(amount)
+
+            if int(amount) < 0:
+                txt = "실패 : 0원 보다 큰 값을 입력하세요."
+                context["txt1"] = txt
+                return render(request, 'manager_receipt.html', context)
 
             if 'input' in request.POST:
                 update = user_bankbook + int(amount)
-                context["update"] = update
-                context["buy_possible"] = True
-                print(f"입금:{amount} >> 잔액:{update}")
                 BankBook.objects.filter(user_id = member.pk).update(balance_won = update)
                 print(context)
+
+                txt = f"입금성공 : +{amount}원 (잔고: {update}원)"
+                context["txt1"] = txt
+                return render(request, 'manager_receipt.html', context)
             
             elif 'output' in request.POST:
                 update = int(user_bankbook - int(amount))
 
                 if update >= 0:
-                    context["update"] = update
-                    context["cell_possible"] = True
-                    print(f"출금:{amount} >> 잔액:{update}")
                     BankBook.objects.filter(user_id = member.pk).update(balance_won = update)
+
+                    txt = f"출금성공 : -{amount}원 (잔고: {update}원)"
+                    context["txt1"] = txt
+                    return render(request, 'manager_receipt.html', context)
                 else:
-                    context["cell_impossible"] = False
-                    print("출금실패")
-                    return render(request, 'account.html',context)
+                    txt = f"출금실패 : 잔액부족"
+                    context["txt1"] = txt
+                    return render(request, 'manager_receipt.html', context)
         except:
-            return render(request, 'account.html')
+            pass
+        
     return render(request, 'account.html',context)
 
 
@@ -163,6 +234,9 @@ def change_money(request):
         "is_success" : is_success
     }
 
+    current_time = datetime.now().strftime("%m월 %d일  %H:%M:%S")
+    context["current_time"] = current_time
+
     req_mem  = Person.objects.get(person_id = request.user.pk)
     context["is_manger"] = req_mem.is_manger
     if not req_mem.is_manger:
@@ -193,7 +267,8 @@ def change_money(request):
             currency = request.POST.get("currency")
             exchange_info = Exchange.objects.all().values()[0]
 
-            percent = 0.1
+            percent = int(exchange_info["change_rate_percent"])/100
+            print(percent)
 
             if currency == "USD":
                 rate = exchange_info["dollar2won"]
@@ -216,17 +291,15 @@ def change_money(request):
             #외화 -> 원화
             if 'cell' in request.POST:
                 input = int(input)
+                if input <= 0:
+                    txt = "0보다 큰 값을 입력하십시오."
+                    context["txt1"] = txt
+                    return render(request, 'receipt.html', context)
+                
                 if user_bankbook >= input:
                     is_cell_possible = True
                     rate = rate*(1-percent)
                     get_won = int(input * rate)
-
-                    print(f"get won = {get_won}")
-                    
-                    context["is_cell_possible"] = is_cell_possible
-                    context["get_won"] = get_won
-                    context["input"] = str(input)+currency
-
                     try:
                         origin = user_bankbook
                         origin_won = bankbook.balance_won
@@ -244,14 +317,26 @@ def change_money(request):
                             BankBook.objects.filter(user_id = member.pk).update(balance_yen = update)
 
                         BankBook.objects.filter(user_id = member.pk).update(balance_won = update_won)
-                        is_success = True
-                        context["is_success"] = is_success
+
+                        txt1 = str(input)+" "+currency+ " -> "+str(get_won)+"원 : 환전(판매)완료"
+                        context["txt1"] = txt1
+
+                        return render(request, 'receipt.html', context)
                         
                     except:
-                        print("db fail")
-                        return redirect('/change_money')
+                        txt = "환전 실패"
+                        context["txt1"] = txt
+                        txt2 = "재시도하거나 은행을 방문하시길 바랍니다."
+                        context["txt2"] = txt2
+                        return render(request, 'receipt.html', context)
+                else:
+                    txt = currency + " 부족"
+                    context["txt1"] = txt
+                    return render(request, 'receipt.html', context)
+
+                    
             #원화 -> 외화
-            else:
+            elif 'buy' in request.POST:
                 #환전 최대 가능량
                 rate = rate*(1+percent)
                 show_limit = True
@@ -259,21 +344,15 @@ def change_money(request):
 
                 limit = int(user_won / rate)-1
                 context["limit"] = str(limit) +currency
-                print(user_won)
-                print(limit)
 
                 input = int(input)
+                if input <= 0:
+                    txt = "0보다 큰 값을 입력하십시오."
+                    context["txt1"] = txt
+                    return render(request, 'receipt.html', context)
+                
                 if limit >= input:
-                    is_buy_possible = True
-                    context["is_buy_possible"] = is_buy_possible
-
                     use_money = int(input * rate)
-                    
-                    context["currency"] = currency
-                    context["use_money"] = use_money
-                    context["input"] = str(input)+currency
-
-
                     try:
                         origin_won = bankbook.balance_won
                         update_won = origin_won - use_money
@@ -294,19 +373,29 @@ def change_money(request):
                             BankBook.objects.filter(user_id = member.pk).update(balance_yen = update)
 
                         BankBook.objects.filter(user_id = member.pk).update(balance_won = update_won)
-                        is_success = True
-                        context["is_success"] = is_success
+                        
+                        txt1 = str(use_money)+ " 원 -> "+str(input)+" "+currency+ " : 환전(구매)완료"
+                        context["txt1"] = txt1
+
+                        return render(request, 'receipt.html', context)
                         
                     except:
-                        print("db fail")
-                        return redirect('/change_money')
-
+                        txt = "환전 실패"
+                        context["txt1"] = txt
+                        txt2 = "재시도하거나 은행을 방문하시길 바랍니다."
+                        context["txt2"] = txt2
+                        return render(request, 'receipt.html', context)
+                    
+                else:
+                    txt = "잔고 부족"
+                    context["txt1"] = txt
+                    return render(request, 'receipt.html', context)
         except:
             pass
 
-
     return render(request, 'change_money.html',context)
 
+#우승자 확인 : 매니저 전용
 def checkwinner(request):
     #유저 접속 거부
     req_mem  = Person.objects.get(person_id = request.user.pk)

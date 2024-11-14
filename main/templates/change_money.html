@@ -19,7 +19,6 @@
     </div>
       <nav>
         <ul>
-            
             {% if is_manger %}
             <li><a href="/checkwinner">순위</a></li>
             <li><a href="javascript:void(0);" onclick="window.location.reload();">환전</a></li>
@@ -30,9 +29,6 @@
             <li><a href="javascript:void(0);" onclick="window.location.reload();">환전</a></li>
             <li><a href="/enter">참가</a></li>
             {% endif %}
-            
-            
-          
         </ul>
       </nav>
 </header>
@@ -67,18 +63,7 @@
                 <p>환전가능 최대금액 : {{limit|intcomma}}</p>
             {% else %}
             {% endif %}
-            {% if is_cell_possible %}
-                <h3>계산서</h3>
-                <p>{{input|intcomma}} 판매 완료 : {{get_won|intcomma}} 원 입금</p>
-            {% else %}
-            {% endif %}
-
-            {% if is_buy_possible %}
-                <h3>계산서</h3>
-                <p>{{input|intcomma}} 구매 완료 : {{use_money|intcomma}} 원 출금</p>
-                
-            {% else %}
-            {% endif %}
+            
 
             <div class="button-container">
                 <button type="submit" name="buy" class="btn">구매</button>

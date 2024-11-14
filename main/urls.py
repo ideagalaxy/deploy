@@ -12,6 +12,7 @@ urlpatterns = [
     path('exchange', views.exchange_rate, name='exchange'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('enter', views.enter, name='enter'),
+    path('casino', views.casino, name='casino'),
 
     
     path('change_money',views.change_money,name="change_money"),

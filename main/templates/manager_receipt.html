@@ -20,13 +20,9 @@
       <nav>
         <ul>
             
-            {% if is_manger %}
-            {% else %}
-            <li><a href="/{{user.pk}}/">통장</a></li>
-            <li><a href="/exchange">환율</a></li>
+            <li><a href="/checkwinner">순위</a></li>
             <li><a href="/change_money">환전</a></li>
-            <li><a href="/enter" onclick="window.location.reload();">참가</a></li>
-            {% endif %}
+            <li><a href="/account">입출금</a></li>
             
             
           
@@ -36,17 +32,9 @@
 <body>
     <div class="wrapper">
           <h1>
-              영수증      
+              실행결과      
           </h1>
-          
-            {% if is_enter %}
-                <br>
-                <h3 style="text-align: center;">
-                    게임참가 시 스태프에게 영수증 "꼭" 제시
-                </h3>
-            {% else %}
-            {% endif %}
-
+          <br>
         <p style="text-align: center;">
             이 페이지를 나가면 다시 돌아올 수 없습니다.
         </p>

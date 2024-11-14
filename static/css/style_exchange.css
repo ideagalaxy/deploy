@@ -48,6 +48,8 @@ nav ul li a {
     color: #ffffffe5;
     text-decoration: none;  
     font-size: 20px;
+    white-space: nowrap; /* 텍스트가 줄 바꿈되지 않도록 설정 */
+    word-break: keep-all; /* 단어가 쪼개지는 것을 방지 */
 } 
 
 
