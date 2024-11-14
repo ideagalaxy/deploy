@@ -4,9 +4,25 @@ from django.shortcuts import render, redirect
 from django.contrib import auth
 from django.middleware.csrf import CsrfViewMiddleware
 
+def receipt(request):
+
+    return render(request, 'receipt.html')
 
 
 def enter(request):
+    FEE = 50000
+    print(request.POST)
+
+    req_mem  = Person.objects.get(person_id = request.user.pk)
+    bankbooktmp = BankBook.objects.get(user_id = req_mem.pk).balance_won
+    if request.method == "POST":
+        if 'nomal' in request.POST:
+            print(bankbooktmp)
+
+        
+        if 'casino' in request.POST:
+            print(bankbooktmp)
+
     return render(request, 'enter.html')
 
 def account(request):

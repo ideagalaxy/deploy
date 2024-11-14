@@ -72,3 +72,24 @@
 </body>
 </html>
 
+
+<script>
+    function updatePlaceholder() {
+        const selectedCurrency = document.getElementById("currency").value;
+        
+        const inputBox = document.getElementById("inputBox");
+        
+        if (selectedCurrency === "USD") {
+            inputBox.placeholder = "{{user_dol}}$ 판매가능";
+        } 
+        if (selectedCurrency === "JPY") {
+            inputBox.placeholder = "{{user_yen}}¥ 판매가능";
+        } 
+        if (selectedCurrency === "PHP") {
+            inputBox.placeholder = "{{user_php}}₱ 판매가능";
+        } 
+
+    }
+
+
+</script>
