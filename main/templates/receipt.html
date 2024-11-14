@@ -39,26 +39,11 @@
               게임참가         
           </h1>
           <br>
+
           <form method = "post" >
             {% csrf_token %}
             
             
-
-            <div class="button-container">
-                <button type="submit" name="nomal" class="btn">물건 맞추기</button>
-                <button type="submit" name="nomal" class="btn">올리면 2배!</button>
-            </div>
-            
-            <div class="button-container">
-                <button type="submit" name="nomal" class="btn">탁구공 박자</button>
-                <button type="submit" name="nomal" class="btn">할리갈리</button>
-            </div>
-            
-            <div class="button-container">
-                <button type="submit" name="casino" class="btn">해적룰렛</button>
-                <button type="submit" name="casino" class="btn">멕시칸 스탠드오프</button>
-            </div>
-
             <div class="button-container">
                 <button type="submit" name="nomal" class="btn">딜러의 단어는?</button>
             </div>
@@ -73,23 +58,3 @@
 </html>
 
 
-<script>
-    function updatePlaceholder() {
-        const selectedCurrency = document.getElementById("currency").value;
-        
-        const inputBox = document.getElementById("inputBox");
-        
-        if (selectedCurrency === "USD") {
-            inputBox.placeholder = "{{user_dol}}$ 판매가능";
-        } 
-        if (selectedCurrency === "JPY") {
-            inputBox.placeholder = "{{user_yen}}¥ 판매가능";
-        } 
-        if (selectedCurrency === "PHP") {
-            inputBox.placeholder = "{{user_php}}₱ 판매가능";
-        } 
-
-    }
-
-
-</script>

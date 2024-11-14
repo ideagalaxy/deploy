@@ -18,6 +18,7 @@ def enter(request):
     if request.method == "POST":
         if 'nomal' in request.POST:
             print(bankbooktmp)
+            #BankBook.objects.filter(user_id = member.pk).update(balance_won = update)
 
         
         if 'casino' in request.POST:
