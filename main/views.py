@@ -43,6 +43,7 @@ def casino(request):
     context = {}
     coin_price = 50000
     context["price"] = coin_price
+    context['enter_fee'] = int(FEE)
 
     req_mem  = Person.objects.get(person_id = request.user.pk)
     bankbooktmp = BankBook.objects.get(user_id = req_mem.pk).balance_won
@@ -68,12 +69,13 @@ def casino(request):
                 current_time = datetime.now().strftime("%m월 %d일  %H:%M:%S")
                 context["current_time"] = current_time
 
-                if input <= bankbooktmp:
-                    update = bankbooktmp - input
+                if (input+FEE) <= bankbooktmp:
+                    update = bankbooktmp - input - FEE
                     context["is_enter"] = True
                     BankBook.objects.filter(user_id = req_mem.pk).update(balance_won = update)
-                    txt = f"{input}원 결제성공(잔액: {update}원)"
+                    txt = f"{input+FEE}원 결제성공(잔액: {update}원)"
                     context["txt1"] = txt
+                    context['txt2'] = f"참가비({FEE}원) + 결제비({input}원)"
                     return render(request, 'receipt.html', context)
                 
                 else:
