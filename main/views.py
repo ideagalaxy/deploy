@@ -5,6 +5,46 @@ from django.contrib import auth
 from django.middleware.csrf import CsrfViewMiddleware
 from datetime import datetime
 
+def create_user(request):
+    import pandas as pd
+
+    # 엑셀 파일 경로 설정
+    file_path = 'userdata.xlsx'
+    df = pd.read_excel(file_path)
+
+    name = df['1. 이름'].values
+    depart = df['2. 학과'].values
+    id = df['3. 학번'].values
+
+
+    pwd = []
+    for i in range(len(id)):
+        tmp_id = str(id[i])
+        dep = depart[i]
+        print(dep)
+        if dep == '인공지능응용학과':
+            pw = 'aai'
+        elif dep == '지능형반도체공학과':
+            pw = 'dse'
+        elif dep == '미래에너지융합학과':
+            pw = 'eng'
+        tmp = 'ccc'+pw+tmp_id[:2]+tmp_id[6:]
+        print(tmp)
+        pwd.append(tmp)
+
+    for i in range(len(id)):
+        print(id[i],pwd[i])
+
+        # User 생성
+        user = User.objects.create_user(username=id[i], password=pwd[i])
+        # Person 생성
+        person = Person.objects.create(person=user, is_manger=False, is_player=True)
+        # BankBook 생성
+        bankbook = BankBook.objects.create(user=person, balance_won=1000000, balance_dol=0, balance_yen=0, balance_pes=0)
+
+
+
+
 def receipt(request,inputdata):
     return render(request, 'receipt.html')
 
@@ -40,6 +80,7 @@ def enter(request):
     return render(request, 'enter.html')
 
 def casino(request):
+    print(request.POST)
     context = {}
     coin_price = 50000
     context["price"] = coin_price
