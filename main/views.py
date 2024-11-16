@@ -48,8 +48,11 @@ def create_user(request):
 def receipt(request,inputdata):
     return render(request, 'receipt.html')
 
-exchange_info = Exchange.objects.all().values()[0]
-FEE = exchange_info["enter_fee"]
+try:
+    exchange_info = Exchange.objects.all().values()[0]
+    FEE = exchange_info["enter_fee"]
+except:
+    pass
 
 def enter(request):
     req_mem  = Person.objects.get(person_id = request.user.pk)
@@ -76,13 +79,64 @@ def enter(request):
         
         if 'casino' in request.POST:
             return redirect(f'casino')
+        
+        print(request.POST)
+        if 'store' in request.POST:
+            context["is_store"] = True
+            return redirect(f'store')
 
     return render(request, 'enter.html')
+
+def store(request):
+    print(request.POST)
+    context = {}
+
+    req_mem  = Person.objects.get(person_id = request.user.pk)
+    bankbooktmp = BankBook.objects.get(user_id = req_mem.pk).balance_won
+
+    if request.method == "POST":
+        if 'buy' in request.POST:
+            input_str = request.POST.get("input")
+            try:
+                input = int(input_str)
+                if input < 0:
+                    current_time = datetime.now().strftime("%m월 %d일  %H:%M:%S")
+                    context["current_time"] = current_time
+                    txt = "0보다 큰 값을 입력하십시오."
+                    context["txt1"] = txt
+                    txt2 = "처음부터 다시 참가과정을 진행하십시오."
+                    context["txt2"] = txt2
+                    return render(request, 'receipt.html', context)
+
+            except (TypeError, ValueError):
+                input = None  # 또는 기본값 설정
+
+            if input != None:
+                current_time = datetime.now().strftime("%m월 %d일  %H:%M:%S")
+                context["current_time"] = current_time
+
+                if (input) <= bankbooktmp:
+                    update = bankbooktmp - input
+                    context["is_enter"] = True
+                    BankBook.objects.filter(user_id = req_mem.pk).update(balance_won = update)
+                    txt = f"{input}원 결제성공(잔액: {update}원)"
+                    context["txt1"] = txt
+                    context['txt2'] = f"결제비({input}원)"
+                    return render(request, 'receipt.html', context)
+                
+                else:
+                    txt = "결제실패(잔고부족)"
+                    context["txt1"] = txt
+                    return render(request, 'receipt.html', context)
+
+    return render(request, 'store.html',context)
 
 def casino(request):
     print(request.POST)
     context = {}
-    coin_price = 50000
+    exchange_info = Exchange.objects.all().values()[0]
+    coin_price = exchange_info["coin_price"]
+     
     context["price"] = coin_price
     context['enter_fee'] = int(FEE)
 

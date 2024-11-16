@@ -29,6 +29,7 @@ class Exchange(models.Model):
     pesso2won = models.IntegerField(default = 0)
     change_rate_percent = models.IntegerField(default = 0)
     enter_fee = models.IntegerField(default = 0)
+    coin_price = models.IntegerField(default = 0)
 
     def __str__(self) -> str:
         return "Information"
